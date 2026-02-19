@@ -205,7 +205,7 @@ func (inst *Installer) enableServices() error {
 
 func (inst *Installer) installSoftware() error {
 	inst.log("Installing base-devel and git...")
-	if _, err := inst.chrootRun("pacman", "-S", "--noconfirm", "base-devel", "git"); err != nil {
+	if _, err := inst.chrootRun("pacman", "-S", "--noconfirm", "base-devel", "git", "go"); err != nil {
 		return err
 	}
 
