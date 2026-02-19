@@ -73,8 +73,12 @@ func (i *Install) waitForUpdate() tea.Cmd {
 func (i *Install) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case PhaseUpdateMsg:
-		i.phase = msg.Description
-		i.percent = msg.Percent
+		if msg.Description != "" {
+			i.phase = msg.Description
+		}
+		if msg.Percent > i.percent {
+			i.percent = msg.Percent
+		}
 		if msg.LogLine != "" {
 			i.logs = append(i.logs, msg.LogLine)
 		}
