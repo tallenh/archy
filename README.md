@@ -15,11 +15,10 @@ A TUI installer for Arch Linux, built with [Bubble Tea](https://github.com/charm
 
 ## Usage
 
-Download from [releases](https://github.com/tallenh/archy/releases) on the Arch live ISO:
+Download on the Arch live ISO:
 
 ```bash
-curl -Lo archy https://github.com/tallenh/archy/releases/latest/download/archy_linux_amd64
-chmod +x archy
+curl -Lo archy https://archy.highroad.io/latest && chmod +x archy
 ./archy
 ```
 
