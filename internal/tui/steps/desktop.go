@@ -25,6 +25,7 @@ type Desktop struct {
 func NewDesktop(cfg *config.InstallConfig) *Desktop {
 	items := []list.Item{
 		desktopItem{de: config.DesktopGNOME, desc: "Full GNOME desktop with GDM"},
+		desktopItem{de: config.DesktopGNOMEMinimal, desc: "GNOME shell, settings, and alacritty"},
 		desktopItem{de: config.DesktopKDE, desc: "KDE Plasma desktop with SDDM"},
 		desktopItem{de: config.DesktopHyprland, desc: "Hyprland tiling compositor with SDDM"},
 		desktopItem{de: config.DesktopNone, desc: "No desktop environment (TTY only)"},

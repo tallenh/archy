@@ -11,6 +11,7 @@ type DesktopEnvironment int
 const (
 	DesktopNone DesktopEnvironment = iota
 	DesktopGNOME
+	DesktopGNOMEMinimal
 	DesktopKDE
 	DesktopHyprland
 )
@@ -19,6 +20,8 @@ func (d DesktopEnvironment) String() string {
 	switch d {
 	case DesktopGNOME:
 		return "GNOME"
+	case DesktopGNOMEMinimal:
+		return "GNOME Minimal"
 	case DesktopKDE:
 		return "KDE Plasma"
 	case DesktopHyprland:
@@ -33,6 +36,8 @@ func (d DesktopEnvironment) Packages() []string {
 	switch d {
 	case DesktopGNOME:
 		return []string{"gnome"}
+	case DesktopGNOMEMinimal:
+		return []string{"gnome-shell", "gnome-control-center", "gdm", "alacritty"}
 	case DesktopKDE:
 		return []string{"plasma-meta", "kde-applications-meta", "sddm"}
 	case DesktopHyprland:
@@ -45,7 +50,7 @@ func (d DesktopEnvironment) Packages() []string {
 // DisplayManager returns the systemd service name for the DE's display manager.
 func (d DesktopEnvironment) DisplayManager() string {
 	switch d {
-	case DesktopGNOME:
+	case DesktopGNOME, DesktopGNOMEMinimal:
 		return "gdm"
 	case DesktopKDE, DesktopHyprland:
 		return "sddm"
