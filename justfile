@@ -13,3 +13,7 @@ clean:
     rm -f archy
 
 check: vet test build
+
+# Test release locally (no publish)
+release-dry-run:
+    goreleaser release --snapshot --clean
