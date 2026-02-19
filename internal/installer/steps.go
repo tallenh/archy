@@ -7,8 +7,6 @@ import (
 )
 
 func (inst *Installer) prepare() error {
-	inst.log("Setting console font...")
-	_ = inst.run("setfont", "ter-v32b") // non-fatal if font not available
 	inst.log("Enabling NTP...")
 	return inst.run("timedatectl", "set-ntp", "true")
 }
