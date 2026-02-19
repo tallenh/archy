@@ -65,7 +65,7 @@ func (inst *Installer) configureLUKSGrub() error {
 
 	// Regenerate initramfs
 	inst.log("Regenerating initramfs...")
-	if _, err := chrootRun("mkinitcpio", "-P"); err != nil {
+	if _, err := inst.chrootRun("mkinitcpio", "-P"); err != nil {
 		return err
 	}
 

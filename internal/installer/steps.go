@@ -116,18 +116,18 @@ func (inst *Installer) installBase() error {
 
 func (inst *Installer) configureSystem() error {
 	inst.log("Setting timezone to " + inst.cfg.Timezone + "...")
-	if _, err := chrootShell("ln -sf /usr/share/zoneinfo/" + inst.cfg.Timezone + " /etc/localtime"); err != nil {
+	if _, err := inst.chrootShell("ln -sf /usr/share/zoneinfo/" + inst.cfg.Timezone + " /etc/localtime"); err != nil {
 		return err
 	}
-	if _, err := chrootRun("hwclock", "--systohc"); err != nil {
+	if _, err := inst.chrootRun("hwclock", "--systohc"); err != nil {
 		return err
 	}
 
 	inst.log("Configuring locale...")
-	if _, err := chrootShell("sed -i '/en_US.UTF-8/s/^#//' /etc/locale.gen"); err != nil {
+	if _, err := inst.chrootShell("sed -i '/en_US.UTF-8/s/^#//' /etc/locale.gen"); err != nil {
 		return err
 	}
-	if _, err := chrootRun("locale-gen"); err != nil {
+	if _, err := inst.chrootRun("locale-gen"); err != nil {
 		return err
 	}
 	if err := os.WriteFile("/mnt/etc/locale.conf", []byte("LANG=en_US.UTF-8\n"), 0o644); err != nil {
@@ -140,23 +140,23 @@ func (inst *Installer) configureSystem() error {
 	}
 
 	inst.log("Setting root password...")
-	if _, err := chrootShell(fmt.Sprintf("echo 'root:%s' | chpasswd", inst.cfg.RootPassword)); err != nil {
+	if _, err := inst.chrootShell(fmt.Sprintf("echo 'root:%s' | chpasswd", inst.cfg.RootPassword)); err != nil {
 		return err
 	}
 
 	inst.log("Creating user " + inst.cfg.Username + "...")
-	if _, err := chrootRun("useradd", "-m", inst.cfg.Username); err != nil {
+	if _, err := inst.chrootRun("useradd", "-m", inst.cfg.Username); err != nil {
 		return err
 	}
-	if _, err := chrootShell(fmt.Sprintf("echo '%s:%s' | chpasswd", inst.cfg.Username, inst.cfg.UserPassword)); err != nil {
+	if _, err := inst.chrootShell(fmt.Sprintf("echo '%s:%s' | chpasswd", inst.cfg.Username, inst.cfg.UserPassword)); err != nil {
 		return err
 	}
-	if _, err := chrootRun("usermod", "-aG", "wheel,audio,video,optical,storage,input", inst.cfg.Username); err != nil {
+	if _, err := inst.chrootRun("usermod", "-aG", "wheel,audio,video,optical,storage,input", inst.cfg.Username); err != nil {
 		return err
 	}
 
 	inst.log("Configuring sudoers...")
-	if _, err := chrootShell("sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers"); err != nil {
+	if _, err := inst.chrootShell("sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers"); err != nil {
 		return err
 	}
 
@@ -165,7 +165,7 @@ func (inst *Installer) configureSystem() error {
 
 func (inst *Installer) configureSwap() error {
 	inst.log("Installing zram-generator...")
-	if _, err := chrootRun("pacman", "-S", "--noconfirm", "zram-generator"); err != nil {
+	if _, err := inst.chrootRun("pacman", "-S", "--noconfirm", "zram-generator"); err != nil {
 		return err
 	}
 
@@ -176,7 +176,7 @@ func (inst *Installer) configureSwap() error {
 
 func (inst *Installer) installBootloader() error {
 	inst.log("Installing GRUB and efibootmgr...")
-	if _, err := chrootRun("pacman", "-S", "--noconfirm", "grub", "efibootmgr"); err != nil {
+	if _, err := inst.chrootRun("pacman", "-S", "--noconfirm", "grub", "efibootmgr"); err != nil {
 		return err
 	}
 
@@ -187,27 +187,27 @@ func (inst *Installer) installBootloader() error {
 	}
 
 	inst.log("Installing GRUB to EFI...")
-	if _, err := chrootRun("grub-install", "--target=x86_64-efi", "--efi-directory=/boot", "--bootloader-id=GRUB"); err != nil {
+	if _, err := inst.chrootRun("grub-install", "--target=x86_64-efi", "--efi-directory=/boot", "--bootloader-id=GRUB"); err != nil {
 		return err
 	}
 
 	inst.log("Generating GRUB config...")
-	_, err := chrootRun("grub-mkconfig", "-o", "/boot/grub/grub.cfg")
+	_, err := inst.chrootRun("grub-mkconfig", "-o", "/boot/grub/grub.cfg")
 	return err
 }
 
 func (inst *Installer) enableServices() error {
 	inst.log("Installing and enabling NetworkManager...")
-	if _, err := chrootRun("pacman", "-S", "--noconfirm", "networkmanager"); err != nil {
+	if _, err := inst.chrootRun("pacman", "-S", "--noconfirm", "networkmanager"); err != nil {
 		return err
 	}
-	_, err := chrootRun("systemctl", "enable", "NetworkManager")
+	_, err := inst.chrootRun("systemctl", "enable", "NetworkManager")
 	return err
 }
 
 func (inst *Installer) installSoftware() error {
 	inst.log("Installing base-devel and git...")
-	if _, err := chrootRun("pacman", "-S", "--noconfirm", "base-devel", "git"); err != nil {
+	if _, err := inst.chrootRun("pacman", "-S", "--noconfirm", "base-devel", "git"); err != nil {
 		return err
 	}
 
@@ -217,7 +217,7 @@ func (inst *Installer) installSoftware() error {
 		fmt.Sprintf("su - %s -c 'cd /tmp/yay && makepkg -si --noconfirm'", inst.cfg.Username),
 	}
 	for _, cmd := range cmds {
-		if _, err := chrootShell(cmd); err != nil {
+		if _, err := inst.chrootShell(cmd); err != nil {
 			// yay install is non-fatal
 			inst.log("Warning: yay install failed (can be installed manually later)")
 			return nil
@@ -234,16 +234,16 @@ func (inst *Installer) installDesktop() error {
 
 	inst.log("Installing " + inst.cfg.Desktop.String() + " packages...")
 	args := append([]string{"-S", "--noconfirm"}, pkgs...)
-	if _, err := chrootRun("pacman", args...); err != nil {
+	if _, err := inst.chrootRun("pacman", args...); err != nil {
 		return err
 	}
 
 	dm := inst.cfg.Desktop.DisplayManager()
 	if dm != "" {
 		inst.log("Enabling " + dm + "...")
-		if _, err := chrootRun("systemctl", "enable", dm); err != nil {
+		if _, err := inst.chrootRun("systemctl", "enable", dm); err != nil {
 			// Try with .service suffix
-			_, err = chrootRun("systemctl", "enable", dm+".service")
+			_, err = inst.chrootRun("systemctl", "enable", dm+".service")
 			if err != nil {
 				return fmt.Errorf("enable %s: %w", dm, err)
 			}
