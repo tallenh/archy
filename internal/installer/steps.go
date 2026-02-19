@@ -210,7 +210,7 @@ func (inst *Installer) installSoftware() error {
 	}
 
 	inst.log("Installing yay AUR helper...")
-	yayCmd := fmt.Sprintf("su - %s -c 'git clone https://aur.archlinux.org/yay.git /tmp/yay && cd /tmp/yay && makepkg -si --noconfirm'", inst.cfg.Username)
+	yayCmd := fmt.Sprintf("su - %s -c 'git clone https://aur.archlinux.org/yay.git /tmp/yay && cd /tmp/yay && makepkg --noconfirm' && pacman -U --noconfirm /tmp/yay/yay-*.pkg.tar.zst", inst.cfg.Username)
 	if _, err := inst.chrootShell(yayCmd); err != nil {
 		// yay install is non-fatal
 		inst.log("Warning: yay install failed (can be installed manually later)")
