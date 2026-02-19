@@ -11,6 +11,7 @@ var (
 	usernameRe    = regexp.MustCompile(`^[a-z_][a-z0-9_-]{0,31}$`)
 	partSizeRe    = regexp.MustCompile(`^[0-9]+[MmGg]$`)
 	zramSizeRe    = regexp.MustCompile(`^[0-9]+[MmGg]$`)
+	zramExprRe    = regexp.MustCompile(`^ram\s*/\s*[0-9]+$`)
 )
 
 // ValidateHostname checks that the hostname follows RFC 952.
@@ -50,15 +51,16 @@ func ValidatePartitionSize(s string) error {
 }
 
 // ValidateZRAMSize checks that a ZRAM size string is valid.
+// Accepts explicit sizes like "8G" or zram-generator expressions like "ram / 2".
 func ValidateZRAMSize(s string) error {
 	s = strings.TrimSpace(s)
 	if s == "" {
 		return fmt.Errorf("ZRAM size cannot be empty")
 	}
-	if !zramSizeRe.MatchString(s) {
-		return fmt.Errorf("invalid ZRAM size: use format like 8G or 4096M")
+	if zramSizeRe.MatchString(s) || zramExprRe.MatchString(s) {
+		return nil
 	}
-	return nil
+	return fmt.Errorf("invalid ZRAM size: use format like 8G, 4096M, or ram / 2")
 }
 
 // ValidatePassword checks that a password meets minimum requirements.

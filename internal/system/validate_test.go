@@ -69,7 +69,7 @@ func TestValidatePassphrase(t *testing.T) {
 }
 
 func TestValidateZRAMSize(t *testing.T) {
-	valid := []string{"8G", "4096M", "2g", "512m"}
+	valid := []string{"8G", "4096M", "2g", "512m", "ram / 2", "ram/4"}
 	for _, v := range valid {
 		if err := ValidateZRAMSize(v); err != nil {
 			t.Errorf("ValidateZRAMSize(%q) = %v, want nil", v, err)
