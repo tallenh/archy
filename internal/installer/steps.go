@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/tallenh/archy/internal/config"
 )
@@ -201,8 +202,34 @@ func (inst *Installer) enableServices() error {
 	if _, err := inst.chrootRun("pacman", "-S", "--noconfirm", "networkmanager"); err != nil {
 		return err
 	}
-	_, err := inst.chrootRun("systemctl", "enable", "NetworkManager")
-	return err
+	if _, err := inst.chrootRun("systemctl", "enable", "NetworkManager"); err != nil {
+		return err
+	}
+
+	// Install guest agents if running in QEMU/Proxmox
+	if isQEMU() {
+		inst.log("QEMU/Proxmox detected, installing guest agents...")
+		if _, err := inst.chrootRun("pacman", "-S", "--noconfirm", "qemu-guest-agent", "spice-vdagent"); err != nil {
+			return err
+		}
+		if _, err := inst.chrootRun("systemctl", "enable", "qemu-guest-agent"); err != nil {
+			return err
+		}
+		if _, err := inst.chrootRun("systemctl", "enable", "spice-vdagentd.socket"); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func isQEMU() bool {
+	out, err := exec.Command("systemd-detect-virt").Output()
+	if err != nil {
+		return false
+	}
+	virt := strings.TrimSpace(string(out))
+	return virt == "kvm" || virt == "qemu"
 }
 
 func (inst *Installer) installSoftware() error {
@@ -241,6 +268,23 @@ func (inst *Installer) installDesktop() error {
 			if err != nil {
 				return fmt.Errorf("enable %s: %w", dm, err)
 			}
+		}
+	}
+
+	// Apply GNOME settings overrides
+	if inst.cfg.Desktop == config.DesktopGNOME || inst.cfg.Desktop == config.DesktopGNOMEMinimal {
+		inst.log("Applying GNOME settings...")
+		override := `[org.gnome.desktop.background]
+picture-uri=''
+picture-uri-dark=''
+primary-color='#231f30'
+color-shading-type='solid'
+`
+		if err := os.WriteFile("/mnt/usr/share/glib-2.0/schemas/99-archy.gschema.override", []byte(override), 0o644); err != nil {
+			return err
+		}
+		if _, err := inst.chrootRun("glib-compile-schemas", "/usr/share/glib-2.0/schemas/"); err != nil {
+			return err
 		}
 	}
 
