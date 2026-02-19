@@ -274,7 +274,10 @@ func (inst *Installer) installDesktop() error {
 	// Apply GNOME settings overrides
 	if inst.cfg.Desktop == config.DesktopGNOME || inst.cfg.Desktop == config.DesktopGNOMEMinimal {
 		inst.log("Applying GNOME settings...")
-		override := `[org.gnome.desktop.background]
+		override := `[org.gnome.desktop.interface]
+color-scheme='prefer-dark'
+
+[org.gnome.desktop.background]
 picture-uri=''
 picture-uri-dark=''
 primary-color='#231f30'
