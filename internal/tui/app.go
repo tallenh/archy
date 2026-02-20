@@ -146,6 +146,16 @@ func (m Model) shouldSkip(step Step) bool {
 		return true
 	}
 
+	// SSH pubkey is always skipped when sshd is disabled
+	if step == StepSSHPubKey && !m.config.SSHD {
+		return true
+	}
+
+	// SSH pubkey from config always requires explicit APPROVE — never skip
+	if step == StepSSHPubKey && m.config.SSHPubKeyFromConfig {
+		return false
+	}
+
 	// Password steps are skipped in both modes when env var provided the value
 	if step == StepUserPassword && m.config.UserPassword != "" {
 		return true
@@ -184,6 +194,10 @@ func (m Model) shouldSkip(step Step) bool {
 		return cfg.DesktopSet
 	case StepShell:
 		return cfg.Shell != ""
+	case StepSSHD:
+		return cfg.SSHDSet
+	case StepSSHPubKey:
+		return cfg.SSHPubKey == ""
 	}
 	return false
 }

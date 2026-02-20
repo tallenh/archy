@@ -244,6 +244,44 @@ func isQEMU() bool {
 	return virt == "kvm" || virt == "qemu"
 }
 
+func (inst *Installer) configureSSHD() error {
+	inst.log("Installing openssh...")
+	if _, err := inst.chrootRun("pacman", "-S", "--noconfirm", "openssh"); err != nil {
+		return err
+	}
+
+	inst.log("Configuring sshd...")
+	sshdConfig := "PermitRootLogin no\nPasswordAuthentication no\nPubkeyAuthentication yes\n"
+	if err := os.MkdirAll("/mnt/etc/ssh/sshd_config.d", 0o755); err != nil {
+		return fmt.Errorf("mkdir sshd_config.d: %w", err)
+	}
+	if err := os.WriteFile("/mnt/etc/ssh/sshd_config.d/10-archy.conf", []byte(sshdConfig), 0o644); err != nil {
+		return fmt.Errorf("write sshd config: %w", err)
+	}
+
+	inst.log("Enabling sshd service...")
+	if _, err := inst.chrootRun("systemctl", "enable", "sshd"); err != nil {
+		return err
+	}
+
+	if inst.cfg.SSHPubKey != "" {
+		inst.log("Installing SSH public key for " + inst.cfg.Username + "...")
+		sshDir := fmt.Sprintf("/mnt/home/%s/.ssh", inst.cfg.Username)
+		if err := os.MkdirAll(sshDir, 0o700); err != nil {
+			return fmt.Errorf("mkdir .ssh: %w", err)
+		}
+		if err := os.WriteFile(sshDir+"/authorized_keys", []byte(inst.cfg.SSHPubKey+"\n"), 0o600); err != nil {
+			return fmt.Errorf("write authorized_keys: %w", err)
+		}
+		chownCmd := fmt.Sprintf("chown -R %s:%s /home/%s/.ssh", inst.cfg.Username, inst.cfg.Username, inst.cfg.Username)
+		if _, err := inst.chrootShell(chownCmd); err != nil {
+			return fmt.Errorf("chown .ssh: %w", err)
+		}
+	}
+
+	return nil
+}
+
 func (inst *Installer) installSoftware() error {
 	inst.log("Installing base-devel and git...")
 	if _, err := inst.chrootRun("pacman", "-S", "--noconfirm", "base-devel", "git", "go"); err != nil {

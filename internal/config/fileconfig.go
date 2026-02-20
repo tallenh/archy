@@ -21,9 +21,11 @@ type tomlConfig struct {
 	Username string        `toml:"username"`
 	ZRAMSize string        `toml:"zram_size"`
 	Desktop  string        `toml:"desktop"`
-	Shell    string        `toml:"shell"`
-	Packages []string      `toml:"packages"`
-	Dotfiles []tomlDotfile `toml:"dotfiles"`
+	Shell        string        `toml:"shell"`
+	SSHD         *bool         `toml:"sshd"`
+	SSHPubKeyFile string       `toml:"ssh_pubkey_file"`
+	Packages     []string      `toml:"packages"`
+	Dotfiles     []tomlDotfile `toml:"dotfiles"`
 }
 
 type tomlDotfile struct {
@@ -190,6 +192,32 @@ func applyTomlConfig(cfg *InstallConfig, tc *tomlConfig, disks []BlockDevice, ti
 		default:
 			return fmt.Errorf("archy.toml: invalid shell %q: must be \"bash\" or \"zsh\"", tc.Shell)
 		}
+	}
+
+	// SSHD
+	if tc.SSHD != nil {
+		cfg.SSHD = *tc.SSHD
+		cfg.SSHDSet = true
+	}
+
+	// SSH public key file
+	if tc.SSHPubKeyFile != "" {
+		var data []byte
+		var err error
+		if bundle != nil {
+			data, err = fs.ReadFile(bundle, tc.SSHPubKeyFile)
+		} else {
+			data, err = os.ReadFile(tc.SSHPubKeyFile)
+		}
+		if err != nil {
+			return fmt.Errorf("archy.toml: ssh_pubkey_file %q: %w", tc.SSHPubKeyFile, err)
+		}
+		key := strings.TrimSpace(string(data))
+		if err := ValidateSSHPubKey(key); err != nil {
+			return fmt.Errorf("archy.toml: ssh_pubkey_file %q: %w", tc.SSHPubKeyFile, err)
+		}
+		cfg.SSHPubKey = key
+		cfg.SSHPubKeyFromConfig = true
 	}
 
 	// Packages

@@ -68,6 +68,25 @@ func TestValidatePassphrase(t *testing.T) {
 	}
 }
 
+func TestValidateSSHPubKey(t *testing.T) {
+	valid := []string{
+		"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleKeyData user@host",
+		"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQExample",
+		"ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTY= comment here",
+	}
+	for _, v := range valid {
+		if err := ValidateSSHPubKey(v); err != nil {
+			t.Errorf("ValidateSSHPubKey(%q) = %v, want nil", v, err)
+		}
+	}
+	invalid := []string{"", "not-a-key", "ssh-rsa", "ssh-rsa !!!invalid"}
+	for _, v := range invalid {
+		if err := ValidateSSHPubKey(v); err == nil {
+			t.Errorf("ValidateSSHPubKey(%q) = nil, want error", v)
+		}
+	}
+}
+
 func TestValidateZRAMSize(t *testing.T) {
 	valid := []string{"8G", "4096M", "2g", "512m", "ram / 2", "ram/4"}
 	for _, v := range valid {

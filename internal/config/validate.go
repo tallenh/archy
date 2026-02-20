@@ -11,7 +11,8 @@ var (
 	usernameRe = regexp.MustCompile(`^[a-z_][a-z0-9_-]{0,31}$`)
 	partSizeRe = regexp.MustCompile(`^[0-9]+[MmGg]$`)
 	zramSizeRe = regexp.MustCompile(`^[0-9]+[MmGg]$`)
-	zramExprRe = regexp.MustCompile(`^ram\s*/\s*[0-9]+$`)
+	zramExprRe  = regexp.MustCompile(`^ram\s*/\s*[0-9]+$`)
+	sshPubKeyRe = regexp.MustCompile(`^(ssh-rsa|ssh-ed25519|ecdsa-sha2-nistp\d+|ssh-dss|sk-ssh-ed25519@openssh\.com|sk-ecdsa-sha2-nistp256@openssh\.com)\s+[A-Za-z0-9+/=]+(\s+\S.*)?$`)
 )
 
 // ValidateHostname checks that the hostname follows RFC 952.
@@ -81,6 +82,18 @@ func ValidatePassphrase(s string) error {
 	}
 	if len(s) < 8 {
 		return fmt.Errorf("passphrase must be at least 8 characters")
+	}
+	return nil
+}
+
+// ValidateSSHPubKey checks that a string looks like a valid SSH public key.
+func ValidateSSHPubKey(s string) error {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return fmt.Errorf("SSH public key cannot be empty")
+	}
+	if !sshPubKeyRe.MatchString(s) {
+		return fmt.Errorf("invalid SSH public key: expected format like 'ssh-ed25519 AAAA... comment'")
 	}
 	return nil
 }

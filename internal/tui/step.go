@@ -19,6 +19,8 @@ const (
 	StepZRAMSize
 	StepDesktop
 	StepShell
+	StepSSHD
+	StepSSHPubKey
 	StepConfirm
 	StepInstall
 	stepCount

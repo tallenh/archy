@@ -13,6 +13,7 @@ const (
 	PhaseSwap
 	PhaseBootloader
 	PhaseServices
+	PhaseSSHD
 	PhaseSoftware
 	PhaseDesktop
 	PhaseDotfiles
@@ -39,6 +40,8 @@ func (p Phase) String() string {
 		return "Installing bootloader"
 	case PhaseServices:
 		return "Enabling services"
+	case PhaseSSHD:
+		return "Configuring SSH server"
 	case PhaseSoftware:
 		return "Installing software"
 	case PhaseDesktop:

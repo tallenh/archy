@@ -98,13 +98,17 @@ type InstallConfig struct {
 	RootPassword   string
 	ZRAMSize       string // e.g. "8G"
 	Desktop        DesktopEnvironment
-	Shell          string // "bash" or "zsh", empty means bash
-	Dotfiles       []Dotfile
-	Packages       []string // additional pacman packages to install
-	BundleFS       fs.FS    // zip bundle filesystem, nil when using loose files
-	Mode           string   // "skip", "prompt", or "" (interactive)
-	EncryptSet     bool   // true when encrypt was explicitly set via config
-	DesktopSet     bool   // true when desktop was explicitly set via config
+	Shell              string // "bash" or "zsh", empty means bash
+	SSHD               bool   // install and enable openssh
+	SSHPubKey          string // SSH public key content (from file or interactive)
+	Dotfiles           []Dotfile
+	Packages           []string // additional pacman packages to install
+	BundleFS           fs.FS    // zip bundle filesystem, nil when using loose files
+	Mode               string   // "skip", "prompt", or "" (interactive)
+	EncryptSet         bool     // true when encrypt was explicitly set via config
+	DesktopSet         bool     // true when desktop was explicitly set via config
+	SSHDSet            bool     // true when sshd was explicitly set via config
+	SSHPubKeyFromConfig bool   // true when key was loaded from config file (requires APPROVE)
 }
 
 // PartitionPrefix returns the partition device prefix (handles NVMe "p" separator).
@@ -155,6 +159,14 @@ func (c *InstallConfig) Summary() string {
 		shell = "bash"
 	}
 	fmt.Fprintf(&b, "Shell:        %s\n", shell)
+	fmt.Fprintf(&b, "SSH Server:   %v\n", c.SSHD)
+	if c.SSHD && c.SSHPubKey != "" {
+		key := c.SSHPubKey
+		if len(key) > 40 {
+			key = key[:40] + "..."
+		}
+		fmt.Fprintf(&b, "SSH Pub Key:  %s\n", key)
+	}
 	if len(c.Packages) > 0 {
 		fmt.Fprintf(&b, "Packages:     %s\n", strings.Join(c.Packages, ", "))
 	}
