@@ -21,6 +21,7 @@ type tomlConfig struct {
 	Username string        `toml:"username"`
 	ZRAMSize string        `toml:"zram_size"`
 	Desktop  string        `toml:"desktop"`
+	Shell    string        `toml:"shell"`
 	Packages []string      `toml:"packages"`
 	Dotfiles []tomlDotfile `toml:"dotfiles"`
 }
@@ -179,6 +180,16 @@ func applyTomlConfig(cfg *InstallConfig, tc *tomlConfig, disks []BlockDevice, ti
 		}
 		cfg.Desktop = de
 		cfg.DesktopSet = true
+	}
+
+	// Shell
+	if tc.Shell != "" {
+		switch strings.ToLower(tc.Shell) {
+		case "bash", "zsh":
+			cfg.Shell = strings.ToLower(tc.Shell)
+		default:
+			return fmt.Errorf("archy.toml: invalid shell %q: must be \"bash\" or \"zsh\"", tc.Shell)
+		}
 	}
 
 	// Packages

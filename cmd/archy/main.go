@@ -64,8 +64,9 @@ func main() {
 		steps.NewRootPassword(cfg),                // 9
 		steps.NewZRAMSize(cfg),                    // 10
 		steps.NewDesktop(cfg),                     // 11
-		steps.NewConfirm(cfg),                     // 12
-		steps.NewInstall(cfg),                     // 13
+		steps.NewShell(cfg),                       // 12
+		steps.NewConfirm(cfg),                     // 13
+		steps.NewInstall(cfg),                     // 14
 	}
 
 	m := tui.NewModel(cfg, stepModels)

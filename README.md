@@ -41,7 +41,8 @@ timezone = "America/New_York"
 username = "alice"
 zram_size = "ram / 2"
 desktop = "gnome-minimal"
-packages = ["zsh", "tmux", "neovim", "ripgrep"]
+shell = "zsh"
+packages = ["tmux", "neovim", "ripgrep"]
 
 [[dotfiles]]
 src = "dots/zshrc"
@@ -69,7 +70,8 @@ dest = "~/.tmux.conf"
 | `timezone` | `"America/New_York"` | Must match `timedatectl list-timezones` |
 | `zram_size` | `"8G"`, `"ram / 2"` | |
 | `desktop` | `"gnome"`, `"gnome-minimal"`, `"kde"`, `"hyprland"`, `"none"` | Invalid values error with the list of valid options |
-| `packages` | `["zsh", "tmux"]` | Additional pacman packages to install |
+| `shell` | `"bash"`, `"zsh"` | Default shell for the user; zsh is installed automatically |
+| `packages` | `["tmux", "neovim"]` | Additional pacman packages to install |
 
 ### Passwords
 

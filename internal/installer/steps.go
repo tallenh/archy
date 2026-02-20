@@ -163,6 +163,16 @@ func (inst *Installer) configureSystem() error {
 		return err
 	}
 
+	if inst.cfg.Shell == "zsh" {
+		inst.log("Installing and setting zsh as default shell...")
+		if _, err := inst.chrootRun("pacman", "-S", "--noconfirm", "zsh"); err != nil {
+			return err
+		}
+		if _, err := inst.chrootRun("chsh", "-s", "/bin/zsh", inst.cfg.Username); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

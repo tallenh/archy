@@ -182,6 +182,8 @@ func (m Model) shouldSkip(step Step) bool {
 		return cfg.ZRAMSize != ""
 	case StepDesktop:
 		return cfg.DesktopSet
+	case StepShell:
+		return cfg.Shell != ""
 	}
 	return false
 }

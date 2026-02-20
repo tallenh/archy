@@ -18,6 +18,7 @@ const (
 	StepRootPassword
 	StepZRAMSize
 	StepDesktop
+	StepShell
 	StepConfirm
 	StepInstall
 	stepCount

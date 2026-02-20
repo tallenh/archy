@@ -98,6 +98,7 @@ type InstallConfig struct {
 	RootPassword   string
 	ZRAMSize       string // e.g. "8G"
 	Desktop        DesktopEnvironment
+	Shell          string // "bash" or "zsh", empty means bash
 	Dotfiles       []Dotfile
 	Packages       []string // additional pacman packages to install
 	BundleFS       fs.FS    // zip bundle filesystem, nil when using loose files
@@ -149,6 +150,11 @@ func (c *InstallConfig) Summary() string {
 	fmt.Fprintf(&b, "Root Pass:    %s\n", strings.Repeat("*", len(c.RootPassword)))
 	fmt.Fprintf(&b, "ZRAM Size:    %s\n", c.ZRAMSize)
 	fmt.Fprintf(&b, "Desktop:      %s\n", c.Desktop)
+	shell := c.Shell
+	if shell == "" {
+		shell = "bash"
+	}
+	fmt.Fprintf(&b, "Shell:        %s\n", shell)
 	if len(c.Packages) > 0 {
 		fmt.Fprintf(&b, "Packages:     %s\n", strings.Join(c.Packages, ", "))
 	}
