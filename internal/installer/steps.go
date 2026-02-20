@@ -2,6 +2,7 @@ package installer
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -333,7 +334,15 @@ func (inst *Installer) installDotfiles() error {
 			return fmt.Errorf("mkdir %s: %w", parentDir, err)
 		}
 
-		data, err := os.ReadFile(df.Src)
+		var (
+			data []byte
+			err  error
+		)
+		if inst.cfg.BundleFS != nil {
+			data, err = fs.ReadFile(inst.cfg.BundleFS, df.Src)
+		} else {
+			data, err = os.ReadFile(df.Src)
+		}
 		if err != nil {
 			return fmt.Errorf("read dotfile %s: %w", df.Src, err)
 		}

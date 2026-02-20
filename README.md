@@ -88,6 +88,19 @@ Password steps are skipped when the corresponding env var is set, regardless of 
 
 The `[[dotfiles]]` section copies files into the installed system. `src` is relative to the current directory. `dest` supports `~` which expands to `/home/<username>`. Files under `~` are owned by the user; other paths are owned by root.
 
+### Bundle
+
+Instead of loose files, you can bundle `archy.toml` and dotfile sources into a single `archy.zip`:
+
+```
+archy.zip
+├── archy.toml
+├── dots/zshrc
+└── dots/tmux.conf
+```
+
+Place `archy.zip` in the current directory and run archy. The zip is used as a virtual filesystem — dotfile `src` paths are read from inside the zip. If both `archy.zip` and `archy.toml` exist, the zip takes precedence.
+
 ## Building
 
 Requires Go 1.25+ and [just](https://github.com/casey/just).

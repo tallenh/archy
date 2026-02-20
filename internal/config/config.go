@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"io/fs"
 	"strings"
 )
 
@@ -99,6 +100,7 @@ type InstallConfig struct {
 	Desktop        DesktopEnvironment
 	Dotfiles       []Dotfile
 	Packages       []string // additional pacman packages to install
+	BundleFS       fs.FS    // zip bundle filesystem, nil when using loose files
 	Mode           string   // "skip", "prompt", or "" (interactive)
 	EncryptSet     bool   // true when encrypt was explicitly set via config
 	DesktopSet     bool   // true when desktop was explicitly set via config

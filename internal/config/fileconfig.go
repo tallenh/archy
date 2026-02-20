@@ -1,7 +1,9 @@
 package config
 
 import (
+	"archive/zip"
 	"fmt"
+	"io/fs"
 	"os"
 	"strings"
 
@@ -28,14 +30,21 @@ type tomlDotfile struct {
 	Dest string `toml:"dest"`
 }
 
-// LoadFileConfig loads archy.toml from the current directory (if it exists),
-// reads password environment variables, validates all provided fields, and
-// applies the results to cfg. Returns nil if archy.toml does not exist.
+// LoadFileConfig loads configuration from archy.zip or archy.toml in the
+// current directory (if either exists), reads password environment variables,
+// validates all provided fields, and applies the results to cfg.
+// archy.zip takes precedence over archy.toml.
 func LoadFileConfig(cfg *InstallConfig, disks []BlockDevice, timezones []string) error {
 	if err := loadEnvVars(cfg); err != nil {
 		return err
 	}
 
+	// Try archy.zip first
+	if _, err := os.Stat("archy.zip"); err == nil {
+		return loadFromZip(cfg, disks, timezones)
+	}
+
+	// Fall back to loose archy.toml
 	if _, err := os.Stat("archy.toml"); os.IsNotExist(err) {
 		return nil
 	}
@@ -45,7 +54,30 @@ func LoadFileConfig(cfg *InstallConfig, disks []BlockDevice, timezones []string)
 		return fmt.Errorf("archy.toml: %w", err)
 	}
 
-	return applyTomlConfig(cfg, &tc, disks, timezones)
+	return applyTomlConfig(cfg, &tc, disks, timezones, nil)
+}
+
+func loadFromZip(cfg *InstallConfig, disks []BlockDevice, timezones []string) error {
+	zr, err := zip.OpenReader("archy.zip")
+	if err != nil {
+		return fmt.Errorf("archy.zip: %w", err)
+	}
+
+	data, err := fs.ReadFile(zr, "archy.toml")
+	if err != nil {
+		zr.Close()
+		return fmt.Errorf("archy.zip: %w", err)
+	}
+
+	var tc tomlConfig
+	if _, err := toml.Decode(string(data), &tc); err != nil {
+		zr.Close()
+		return fmt.Errorf("archy.zip: archy.toml: %w", err)
+	}
+
+	cfg.BundleFS = zr
+
+	return applyTomlConfig(cfg, &tc, disks, timezones, zr)
 }
 
 func loadEnvVars(cfg *InstallConfig) error {
@@ -73,7 +105,7 @@ func loadEnvVars(cfg *InstallConfig) error {
 	return nil
 }
 
-func applyTomlConfig(cfg *InstallConfig, tc *tomlConfig, disks []BlockDevice, timezones []string) error {
+func applyTomlConfig(cfg *InstallConfig, tc *tomlConfig, disks []BlockDevice, timezones []string, bundle fs.FS) error {
 	// Validate and set mode
 	switch tc.Mode {
 	case "", "skip", "prompt":
@@ -160,8 +192,14 @@ func applyTomlConfig(cfg *InstallConfig, tc *tomlConfig, disks []BlockDevice, ti
 		if df.Dest == "" {
 			return fmt.Errorf("archy.toml: dotfile entry missing dest")
 		}
-		if _, err := os.Stat(df.Src); err != nil {
-			return fmt.Errorf("archy.toml: dotfile src %q: %w", df.Src, err)
+		if bundle != nil {
+			if _, err := fs.Stat(bundle, df.Src); err != nil {
+				return fmt.Errorf("archy.toml: dotfile src %q not found in archy.zip", df.Src)
+			}
+		} else {
+			if _, err := os.Stat(df.Src); err != nil {
+				return fmt.Errorf("archy.toml: dotfile src %q: %w", df.Src, err)
+			}
 		}
 		cfg.Dotfiles = append(cfg.Dotfiles, Dotfile{Src: df.Src, Dest: df.Dest})
 	}
