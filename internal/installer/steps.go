@@ -245,6 +245,15 @@ func (inst *Installer) installSoftware() error {
 		// yay install is non-fatal
 		inst.log("Warning: yay install failed (can be installed manually later)")
 	}
+
+	if len(inst.cfg.Packages) > 0 {
+		inst.log("Installing additional packages...")
+		args := append([]string{"-S", "--noconfirm"}, inst.cfg.Packages...)
+		if _, err := inst.chrootRun("pacman", args...); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

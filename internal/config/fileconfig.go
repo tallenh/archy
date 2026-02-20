@@ -19,6 +19,7 @@ type tomlConfig struct {
 	Username string        `toml:"username"`
 	ZRAMSize string        `toml:"zram_size"`
 	Desktop  string        `toml:"desktop"`
+	Packages []string      `toml:"packages"`
 	Dotfiles []tomlDotfile `toml:"dotfiles"`
 }
 
@@ -147,6 +148,9 @@ func applyTomlConfig(cfg *InstallConfig, tc *tomlConfig, disks []BlockDevice, ti
 		cfg.Desktop = de
 		cfg.DesktopSet = true
 	}
+
+	// Packages
+	cfg.Packages = append(cfg.Packages, tc.Packages...)
 
 	// Dotfiles
 	for _, df := range tc.Dotfiles {

@@ -98,7 +98,8 @@ type InstallConfig struct {
 	ZRAMSize       string // e.g. "8G"
 	Desktop        DesktopEnvironment
 	Dotfiles       []Dotfile
-	Mode           string // "skip", "prompt", or "" (interactive)
+	Packages       []string // additional pacman packages to install
+	Mode           string   // "skip", "prompt", or "" (interactive)
 	EncryptSet     bool   // true when encrypt was explicitly set via config
 	DesktopSet     bool   // true when desktop was explicitly set via config
 }
@@ -146,6 +147,9 @@ func (c *InstallConfig) Summary() string {
 	fmt.Fprintf(&b, "Root Pass:    %s\n", strings.Repeat("*", len(c.RootPassword)))
 	fmt.Fprintf(&b, "ZRAM Size:    %s\n", c.ZRAMSize)
 	fmt.Fprintf(&b, "Desktop:      %s\n", c.Desktop)
+	if len(c.Packages) > 0 {
+		fmt.Fprintf(&b, "Packages:     %s\n", strings.Join(c.Packages, ", "))
+	}
 	if len(c.Dotfiles) > 0 {
 		fmt.Fprintf(&b, "Dotfiles:     %d file(s)\n", len(c.Dotfiles))
 	}
