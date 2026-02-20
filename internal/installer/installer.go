@@ -45,6 +45,7 @@ func (inst *Installer) Run() {
 		{PhaseServices, inst.enableServices, false},
 		{PhaseSoftware, inst.installSoftware, false},
 		{PhaseDesktop, inst.installDesktop, inst.cfg.Desktop == config.DesktopNone},
+		{PhaseDotfiles, inst.installDotfiles, len(inst.cfg.Dotfiles) == 0},
 	}
 
 	total := 0

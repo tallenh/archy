@@ -13,7 +13,7 @@ type Encrypt struct {
 }
 
 func NewEncrypt(cfg *config.InstallConfig) *Encrypt {
-	return &Encrypt{cfg: cfg}
+	return &Encrypt{cfg: cfg, encrypt: cfg.Encrypt}
 }
 
 func (e *Encrypt) Title() string { return "Disk Encryption" }

@@ -1,4 +1,4 @@
-package system
+package config
 
 import (
 	"fmt"
@@ -7,11 +7,11 @@ import (
 )
 
 var (
-	hostnameRe    = regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9-]{0,62}$`)
-	usernameRe    = regexp.MustCompile(`^[a-z_][a-z0-9_-]{0,31}$`)
-	partSizeRe    = regexp.MustCompile(`^[0-9]+[MmGg]$`)
-	zramSizeRe    = regexp.MustCompile(`^[0-9]+[MmGg]$`)
-	zramExprRe    = regexp.MustCompile(`^ram\s*/\s*[0-9]+$`)
+	hostnameRe = regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9-]{0,62}$`)
+	usernameRe = regexp.MustCompile(`^[a-z_][a-z0-9_-]{0,31}$`)
+	partSizeRe = regexp.MustCompile(`^[0-9]+[MmGg]$`)
+	zramSizeRe = regexp.MustCompile(`^[0-9]+[MmGg]$`)
+	zramExprRe = regexp.MustCompile(`^ram\s*/\s*[0-9]+$`)
 )
 
 // ValidateHostname checks that the hostname follows RFC 952.

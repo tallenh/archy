@@ -15,6 +15,7 @@ const (
 	PhaseServices
 	PhaseSoftware
 	PhaseDesktop
+	PhaseDotfiles
 	phaseCount
 )
 
@@ -42,6 +43,8 @@ func (p Phase) String() string {
 		return "Installing software"
 	case PhaseDesktop:
 		return "Installing desktop environment"
+	case PhaseDotfiles:
+		return "Installing dotfiles"
 	default:
 		return "Unknown phase"
 	}

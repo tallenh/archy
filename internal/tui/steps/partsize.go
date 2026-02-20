@@ -5,7 +5,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/tallenh/archy/internal/config"
-	"github.com/tallenh/archy/internal/system"
 	"github.com/tallenh/archy/internal/tui"
 )
 
@@ -35,7 +34,7 @@ func (p *PartSize) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if val == "" {
 				val = "512M"
 			}
-			if err := system.ValidatePartitionSize(val); err != nil {
+			if err := config.ValidatePartitionSize(val); err != nil {
 				p.err = err.Error()
 				return p, nil
 			}

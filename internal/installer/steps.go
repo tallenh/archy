@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/tallenh/archy/internal/config"
@@ -305,6 +306,42 @@ color-shading-type='solid'
 		inst.chrootShell(fmt.Sprintf("chown -R %s:%s /home/%s/.config", inst.cfg.Username, inst.cfg.Username, inst.cfg.Username))
 	}
 
+	return nil
+}
+
+func (inst *Installer) installDotfiles() error {
+	for _, df := range inst.cfg.Dotfiles {
+		dest := df.Dest
+		isUserOwned := false
+		if strings.HasPrefix(dest, "~/") {
+			dest = "/home/" + inst.cfg.Username + dest[1:]
+			isUserOwned = true
+		}
+
+		targetPath := "/mnt" + dest
+		parentDir := filepath.Dir(targetPath)
+		if err := os.MkdirAll(parentDir, 0o755); err != nil {
+			return fmt.Errorf("mkdir %s: %w", parentDir, err)
+		}
+
+		data, err := os.ReadFile(df.Src)
+		if err != nil {
+			return fmt.Errorf("read dotfile %s: %w", df.Src, err)
+		}
+
+		if err := os.WriteFile(targetPath, data, 0o644); err != nil {
+			return fmt.Errorf("write dotfile %s: %w", targetPath, err)
+		}
+
+		inst.log(fmt.Sprintf("Installed %s → %s", df.Src, df.Dest))
+
+		if isUserOwned {
+			chownCmd := fmt.Sprintf("chown %s:%s %s", inst.cfg.Username, inst.cfg.Username, dest)
+			if _, err := inst.chrootShell(chownCmd); err != nil {
+				return fmt.Errorf("chown %s: %w", dest, err)
+			}
+		}
+	}
 	return nil
 }
 

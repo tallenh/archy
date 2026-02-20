@@ -35,6 +35,14 @@ func NewDesktop(cfg *config.InstallConfig) *Desktop {
 	l.SetShowHelp(false)
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
+	if cfg.DesktopSet {
+		for i, item := range items {
+			if item.(desktopItem).de == cfg.Desktop {
+				l.Select(i)
+				break
+			}
+		}
+	}
 	return &Desktop{cfg: cfg, list: l}
 }
 

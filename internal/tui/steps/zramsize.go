@@ -5,7 +5,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/tallenh/archy/internal/config"
-	"github.com/tallenh/archy/internal/system"
 	"github.com/tallenh/archy/internal/tui"
 )
 
@@ -35,7 +34,7 @@ func (z *ZRAMSize) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if val == "" {
 				val = z.cfg.ZRAMSize
 			}
-			if err := system.ValidateZRAMSize(val); err != nil {
+			if err := config.ValidateZRAMSize(val); err != nil {
 				z.err = err.Error()
 				return z, nil
 			}

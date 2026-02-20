@@ -44,6 +44,12 @@ func main() {
 		ZRAMSize: defaultZRAM,
 	}
 
+	// Load config file and environment variables
+	if err := config.LoadFileConfig(cfg, disks, timezones); err != nil {
+		fmt.Fprintf(os.Stderr, "configuration error: %v\n", err)
+		os.Exit(1)
+	}
+
 	// Build step models
 	stepModels := []tui.StepModel{
 		steps.NewWelcome(),                        // 0

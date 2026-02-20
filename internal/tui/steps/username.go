@@ -5,7 +5,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/tallenh/archy/internal/config"
-	"github.com/tallenh/archy/internal/system"
 	"github.com/tallenh/archy/internal/tui"
 )
 
@@ -20,6 +19,9 @@ func NewUsername(cfg *config.InstallConfig) *Username {
 	ti.Placeholder = "user"
 	ti.CharLimit = 32
 	ti.Width = 40
+	if cfg.Username != "" {
+		ti.SetValue(cfg.Username)
+	}
 	return &Username{cfg: cfg, input: ti}
 }
 
@@ -31,7 +33,7 @@ func (u *Username) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if msg, ok := msg.(tea.KeyMsg); ok {
 		if msg.String() == "enter" {
 			val := u.input.Value()
-			if err := system.ValidateUsername(val); err != nil {
+			if err := config.ValidateUsername(val); err != nil {
 				u.err = err.Error()
 				return u, nil
 			}

@@ -5,7 +5,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/tallenh/archy/internal/config"
-	"github.com/tallenh/archy/internal/system"
 	"github.com/tallenh/archy/internal/tui"
 )
 
@@ -20,6 +19,9 @@ func NewHostname(cfg *config.InstallConfig) *Hostname {
 	ti.Placeholder = "archlinux"
 	ti.CharLimit = 63
 	ti.Width = 40
+	if cfg.Hostname != "" {
+		ti.SetValue(cfg.Hostname)
+	}
 	return &Hostname{cfg: cfg, input: ti}
 }
 
@@ -31,7 +33,7 @@ func (h *Hostname) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if msg, ok := msg.(tea.KeyMsg); ok {
 		if msg.String() == "enter" {
 			val := h.input.Value()
-			if err := system.ValidateHostname(val); err != nil {
+			if err := config.ValidateHostname(val); err != nil {
 				h.err = err.Error()
 				return h, nil
 			}

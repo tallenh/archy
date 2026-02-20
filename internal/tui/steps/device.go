@@ -23,13 +23,20 @@ type Device struct {
 
 func NewDevice(cfg *config.InstallConfig, disks []config.BlockDevice) *Device {
 	items := make([]list.Item, len(disks))
+	selectedIdx := 0
 	for i, d := range disks {
 		items[i] = deviceItem{device: d}
+		if cfg.Device.Name != "" && d.Name == cfg.Device.Name {
+			selectedIdx = i
+		}
 	}
 	l := list.New(items, list.NewDefaultDelegate(), 60, 14)
 	l.Title = "Select target disk"
 	l.SetShowHelp(false)
 	l.SetShowStatusBar(false)
+	if cfg.Device.Name != "" {
+		l.Select(selectedIdx)
+	}
 	return &Device{cfg: cfg, list: l}
 }
 

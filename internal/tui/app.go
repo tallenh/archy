@@ -111,8 +111,10 @@ func (m Model) helpText() string {
 
 func (m Model) nextStep() (tea.Model, tea.Cmd) {
 	next := m.current + 1
-	// Skip passphrase step if encryption is not enabled
-	if next == StepPassphrase && !m.config.Encrypt {
+	for int(next) < len(m.steps) {
+		if !m.shouldSkip(next) {
+			break
+		}
 		next++
 	}
 	if int(next) >= len(m.steps) {
@@ -124,8 +126,10 @@ func (m Model) nextStep() (tea.Model, tea.Cmd) {
 
 func (m Model) prevStep() (tea.Model, tea.Cmd) {
 	prev := m.current - 1
-	// Skip passphrase step if encryption is not enabled
-	if prev == StepPassphrase && !m.config.Encrypt {
+	for prev > StepWelcome {
+		if !m.shouldSkip(prev) {
+			break
+		}
 		prev--
 	}
 	if prev < StepWelcome {
@@ -133,4 +137,51 @@ func (m Model) prevStep() (tea.Model, tea.Cmd) {
 	}
 	m.current = prev
 	return m, m.steps[m.current].Init()
+}
+
+// shouldSkip returns true if the given step should be auto-advanced past.
+func (m Model) shouldSkip(step Step) bool {
+	// Passphrase is always skipped when encryption is disabled
+	if step == StepPassphrase && !m.config.Encrypt {
+		return true
+	}
+
+	// Password steps are skipped in both modes when env var provided the value
+	if step == StepUserPassword && m.config.UserPassword != "" {
+		return true
+	}
+	if step == StepRootPassword && m.config.RootPassword != "" {
+		return true
+	}
+	if step == StepPassphrase && m.config.LUKSPassphrase != "" {
+		return true
+	}
+
+	// Remaining skip logic only applies in skip mode
+	if m.config.Mode != "skip" {
+		return false
+	}
+
+	cfg := m.config
+	switch step {
+	case StepWelcome, StepConfirm, StepInstall:
+		return false
+	case StepDevice:
+		return cfg.Device.Name != ""
+	case StepPartSize:
+		return cfg.EFISize != ""
+	case StepEncrypt:
+		return cfg.EncryptSet
+	case StepHostname:
+		return cfg.Hostname != ""
+	case StepTimezone:
+		return cfg.Timezone != ""
+	case StepUsername:
+		return cfg.Username != ""
+	case StepZRAMSize:
+		return cfg.ZRAMSize != ""
+	case StepDesktop:
+		return cfg.DesktopSet
+	}
+	return false
 }

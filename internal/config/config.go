@@ -78,6 +78,12 @@ func (d BlockDevice) String() string {
 	return strings.Join(parts, "  ")
 }
 
+// Dotfile describes a file to copy into the installed system.
+type Dotfile struct {
+	Src  string // path relative to CWD
+	Dest string // destination path; ~ expands to /home/<username>
+}
+
 // InstallConfig holds all user-selected values for the installation.
 type InstallConfig struct {
 	Device         BlockDevice
@@ -91,6 +97,10 @@ type InstallConfig struct {
 	RootPassword   string
 	ZRAMSize       string // e.g. "8G"
 	Desktop        DesktopEnvironment
+	Dotfiles       []Dotfile
+	Mode           string // "skip", "prompt", or "" (interactive)
+	EncryptSet     bool   // true when encrypt was explicitly set via config
+	DesktopSet     bool   // true when desktop was explicitly set via config
 }
 
 // PartitionPrefix returns the partition device prefix (handles NVMe "p" separator).
@@ -136,5 +146,8 @@ func (c *InstallConfig) Summary() string {
 	fmt.Fprintf(&b, "Root Pass:    %s\n", strings.Repeat("*", len(c.RootPassword)))
 	fmt.Fprintf(&b, "ZRAM Size:    %s\n", c.ZRAMSize)
 	fmt.Fprintf(&b, "Desktop:      %s\n", c.Desktop)
+	if len(c.Dotfiles) > 0 {
+		fmt.Fprintf(&b, "Dotfiles:     %d file(s)\n", len(c.Dotfiles))
+	}
 	return b.String()
 }

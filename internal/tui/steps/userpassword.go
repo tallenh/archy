@@ -5,7 +5,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/tallenh/archy/internal/config"
-	"github.com/tallenh/archy/internal/system"
 	"github.com/tallenh/archy/internal/tui"
 )
 
@@ -57,7 +56,7 @@ func (u *UserPassword) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				u.pass.Blur()
 				return u, u.confirm.Focus()
 			}
-			if err := system.ValidatePassword(u.pass.Value()); err != nil {
+			if err := config.ValidatePassword(u.pass.Value()); err != nil {
 				u.err = err.Error()
 				return u, nil
 			}

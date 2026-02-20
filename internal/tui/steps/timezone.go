@@ -21,8 +21,12 @@ type Timezone struct {
 
 func NewTimezone(cfg *config.InstallConfig, zones []string) *Timezone {
 	items := make([]list.Item, len(zones))
+	selectedIdx := 0
 	for i, z := range zones {
 		items[i] = tzItem(z)
+		if cfg.Timezone != "" && z == cfg.Timezone {
+			selectedIdx = i
+		}
 	}
 	delegate := list.NewDefaultDelegate()
 	delegate.ShowDescription = false
@@ -31,6 +35,9 @@ func NewTimezone(cfg *config.InstallConfig, zones []string) *Timezone {
 	l.SetShowHelp(false)
 	l.SetShowStatusBar(true)
 	l.SetFilteringEnabled(true)
+	if cfg.Timezone != "" {
+		l.Select(selectedIdx)
+	}
 	return &Timezone{cfg: cfg, list: l}
 }
 
