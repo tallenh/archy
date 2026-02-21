@@ -312,11 +312,20 @@ func (inst *Installer) installSoftware() error {
 				strings.Join(inst.cfg.AURPackages, ", "))
 		} else {
 			inst.log("Installing AUR packages...")
+			sudoer := fmt.Sprintf("/etc/sudoers.d/90-archy-%s", inst.cfg.Username)
+			nopasswd := fmt.Sprintf("%s ALL=(ALL) NOPASSWD: ALL", inst.cfg.Username)
+			if _, err := inst.chrootShell(fmt.Sprintf("echo '%s' > %s && chmod 440 %s", nopasswd, sudoer, sudoer)); err != nil {
+				return err
+			}
 			yayArgs := append([]string{"-S", "--noconfirm"}, inst.cfg.AURPackages...)
 			cmd := fmt.Sprintf("su - %s -c 'yay %s'",
 				inst.cfg.Username, strings.Join(yayArgs, " "))
-			if _, err := inst.chrootShell(cmd); err != nil {
-				return err
+			_, yayErr := inst.chrootShell(cmd)
+			if _, err := inst.chrootShell("rm -f " + sudoer); err != nil {
+				inst.log("Warning: failed to remove temporary sudoers file")
+			}
+			if yayErr != nil {
+				return yayErr
 			}
 		}
 	}
