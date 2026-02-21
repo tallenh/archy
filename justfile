@@ -15,9 +15,14 @@ clean:
 check: vet test build
 
 # Tag and push a release (e.g. just release v0.2.0)
-release version:
+release version="":
     #!/usr/bin/env bash
     set -euo pipefail
+    if [ -z "{{version}}" ]; then
+        latest=$(git describe --tags --abbrev=0 2>/dev/null || echo "none")
+        echo "Latest tag: $latest"
+        exit 0
+    fi
     if [ -n "$(git status --porcelain)" ]; then
         echo "error: working directory is not clean" >&2
         exit 1
