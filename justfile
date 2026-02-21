@@ -23,6 +23,10 @@ release version="":
         echo "Latest tag: $latest"
         exit 0
     fi
+    if git rev-parse "{{version}}" >/dev/null 2>&1; then
+        echo "error: tag '{{version}}' already exists" >&2
+        exit 1
+    fi
     if [ -n "$(git status --porcelain)" ]; then
         echo "error: working directory is not clean" >&2
         exit 1
@@ -45,6 +49,10 @@ promote:
         exit 1
     fi
     stable=${beta%%-beta*}
+    if git rev-parse "$stable" >/dev/null 2>&1; then
+        echo "error: tag '$stable' already exists" >&2
+        exit 1
+    fi
     echo "Promoting $beta → $stable"
     gh release delete "$beta" --yes
     git tag -d "$beta"
