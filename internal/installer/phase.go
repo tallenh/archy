@@ -14,8 +14,8 @@ const (
 	PhaseBootloader
 	PhaseServices
 	PhaseSSHD
-	PhaseSoftware
 	PhaseDesktop
+	PhaseSoftware
 	PhaseDotfiles
 	phaseCount
 )

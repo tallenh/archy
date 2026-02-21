@@ -350,20 +350,6 @@ color-shading-type='solid'
 		}
 	}
 
-	// Create alacritty config for GNOME Minimal
-	if inst.cfg.Desktop == config.DesktopGNOMEMinimal {
-		inst.log("Creating alacritty config...")
-		configDir := fmt.Sprintf("/mnt/home/%s/.config/alacritty", inst.cfg.Username)
-		if err := os.MkdirAll(configDir, 0o755); err != nil {
-			return err
-		}
-		if err := os.WriteFile(configDir+"/alacritty.toml", []byte(""), 0o644); err != nil {
-			return err
-		}
-		// Fix ownership to the user
-		inst.chrootShell(fmt.Sprintf("chown -R %s:%s /home/%s/.config", inst.cfg.Username, inst.cfg.Username, inst.cfg.Username))
-	}
-
 	return nil
 }
 

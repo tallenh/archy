@@ -44,8 +44,8 @@ func (inst *Installer) Run() {
 		{PhaseBootloader, inst.installBootloader, false},
 		{PhaseServices, inst.enableServices, false},
 		{PhaseSSHD, inst.configureSSHD, !inst.cfg.SSHD},
-		{PhaseSoftware, inst.installSoftware, false},
 		{PhaseDesktop, inst.installDesktop, inst.cfg.Desktop == config.DesktopNone},
+		{PhaseSoftware, inst.installSoftware, false},
 		{PhaseDotfiles, inst.installDotfiles, len(inst.cfg.Dotfiles) == 0},
 	}
 

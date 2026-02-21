@@ -38,7 +38,7 @@ func (d DesktopEnvironment) Packages() []string {
 	case DesktopGNOME:
 		return []string{"gnome"}
 	case DesktopGNOMEMinimal:
-		return []string{"gnome-shell", "gnome-control-center", "gdm", "alacritty"}
+		return []string{"gnome-shell", "gnome-control-center", "gdm"}
 	case DesktopKDE:
 		return []string{"plasma-meta", "kde-applications-meta", "sddm"}
 	case DesktopHyprland:
