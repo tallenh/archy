@@ -21,6 +21,7 @@ const (
 	StepShell
 	StepSSHD
 	StepSSHPubKey
+	StepDocker
 	StepConfirm
 	StepInstall
 	stepCount

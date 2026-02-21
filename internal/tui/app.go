@@ -198,6 +198,8 @@ func (m Model) shouldSkip(step Step) bool {
 		return cfg.SSHDSet
 	case StepSSHPubKey:
 		return cfg.SSHPubKey == ""
+	case StepDocker:
+		return cfg.DockerSet
 	}
 	return false
 }

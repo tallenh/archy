@@ -101,6 +101,8 @@ type InstallConfig struct {
 	Shell              string // "bash" or "zsh", empty means bash
 	SSHD               bool   // install and enable openssh
 	SSHPubKey          string // SSH public key content (from file or interactive)
+	Docker             bool   // install and enable docker
+	DockerGroup        bool   // add user to docker group
 	Dotfiles           []Dotfile
 	Packages           []string // additional pacman packages to install
 	AURPackages        []string // additional AUR packages to install via yay
@@ -110,6 +112,7 @@ type InstallConfig struct {
 	DesktopSet         bool     // true when desktop was explicitly set via config
 	SSHDSet            bool     // true when sshd was explicitly set via config
 	SSHPubKeyFromConfig bool   // true when key was loaded from config file (requires APPROVE)
+	DockerSet          bool     // true when docker was explicitly set via config
 }
 
 // PartitionPrefix returns the partition device prefix (handles NVMe "p" separator).
@@ -167,6 +170,10 @@ func (c *InstallConfig) Summary() string {
 			key = key[:40] + "..."
 		}
 		fmt.Fprintf(&b, "SSH Pub Key:  %s\n", key)
+	}
+	fmt.Fprintf(&b, "Docker:       %v\n", c.Docker)
+	if c.Docker {
+		fmt.Fprintf(&b, "Docker Group: %v\n", c.DockerGroup)
 	}
 	if len(c.Packages) > 0 {
 		fmt.Fprintf(&b, "Packages:     %s\n", strings.Join(c.Packages, ", "))

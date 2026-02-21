@@ -24,6 +24,8 @@ type tomlConfig struct {
 	Shell        string        `toml:"shell"`
 	SSHD         *bool         `toml:"sshd"`
 	SSHPubKeyFile string       `toml:"ssh_pubkey_file"`
+	Docker       *bool         `toml:"docker"`
+	DockerGroup  *bool         `toml:"docker_group"`
 	Packages     []string      `toml:"packages"`
 	AURPackages  []string      `toml:"aur_packages"`
 	Dotfiles     []tomlDotfile `toml:"dotfiles"`
@@ -219,6 +221,15 @@ func applyTomlConfig(cfg *InstallConfig, tc *tomlConfig, disks []BlockDevice, ti
 		}
 		cfg.SSHPubKey = key
 		cfg.SSHPubKeyFromConfig = true
+	}
+
+	// Docker
+	if tc.Docker != nil {
+		cfg.Docker = *tc.Docker
+		cfg.DockerSet = true
+	}
+	if tc.DockerGroup != nil {
+		cfg.DockerGroup = *tc.DockerGroup
 	}
 
 	// Packages

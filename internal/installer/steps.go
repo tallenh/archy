@@ -282,6 +282,27 @@ func (inst *Installer) configureSSHD() error {
 	return nil
 }
 
+func (inst *Installer) installDocker() error {
+	inst.log("Installing Docker...")
+	if _, err := inst.chrootRun("pacman", "-S", "--noconfirm", "docker"); err != nil {
+		return err
+	}
+
+	inst.log("Enabling Docker service...")
+	if _, err := inst.chrootRun("systemctl", "enable", "docker"); err != nil {
+		return err
+	}
+
+	if inst.cfg.DockerGroup {
+		inst.log("Adding " + inst.cfg.Username + " to docker group...")
+		if _, err := inst.chrootRun("usermod", "-aG", "docker", inst.cfg.Username); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (inst *Installer) installSoftware() error {
 	inst.log("Installing base-devel and git...")
 	if _, err := inst.chrootRun("pacman", "-S", "--noconfirm", "base-devel", "git", "go"); err != nil {

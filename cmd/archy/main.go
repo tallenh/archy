@@ -40,8 +40,9 @@ func main() {
 	defaultZRAM := system.DefaultZRAMSize()
 
 	cfg := &config.InstallConfig{
-		EFISize:  "512M",
-		ZRAMSize: defaultZRAM,
+		EFISize:     "512M",
+		ZRAMSize:    defaultZRAM,
+		DockerGroup: true,
 	}
 
 	// Load config file and environment variables
@@ -67,8 +68,9 @@ func main() {
 		steps.NewShell(cfg),                       // 12
 		steps.NewSSHD(cfg),                        // 13
 		steps.NewSSHPubKey(cfg),                   // 14
-		steps.NewConfirm(cfg),                     // 15
-		steps.NewInstall(cfg),                     // 16
+		steps.NewDocker(cfg),                      // 15
+		steps.NewConfirm(cfg),                     // 16
+		steps.NewInstall(cfg),                     // 17
 	}
 
 	m := tui.NewModel(cfg, stepModels)

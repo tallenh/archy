@@ -42,6 +42,8 @@ username = "alice"
 zram_size = "ram / 2"
 desktop = "gnome-minimal"
 shell = "zsh"
+docker = true
+docker_group = true
 packages = ["tmux", "neovim", "ripgrep"]
 
 [[dotfiles]]
@@ -71,6 +73,8 @@ dest = "~/.tmux.conf"
 | `zram_size` | `"8G"`, `"ram / 2"` | |
 | `desktop` | `"gnome"`, `"gnome-minimal"`, `"kde"`, `"hyprland"`, `"none"` | Invalid values error with the list of valid options |
 | `shell` | `"bash"`, `"zsh"` | Default shell for the user; zsh is installed automatically |
+| `docker` | `true`, `false` | Install and enable Docker |
+| `docker_group` | `true`, `false` | Add user to docker group (default: true) |
 | `packages` | `["tmux", "neovim"]` | Additional pacman packages to install |
 
 ### Passwords
