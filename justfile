@@ -26,6 +26,27 @@ release version:
     git tag {{version}}
     git push origin {{version}}
 
+# Promote a beta tag on HEAD to a stable release
+promote:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    beta=$(git describe --tags --exact-match HEAD 2>/dev/null || true)
+    if [ -z "$beta" ]; then
+        echo "error: HEAD has no tag" >&2
+        exit 1
+    fi
+    if [[ "$beta" != *-beta* ]]; then
+        echo "error: tag '$beta' is not a beta tag" >&2
+        exit 1
+    fi
+    stable=${beta%%-beta*}
+    echo "Promoting $beta → $stable"
+    gh release delete "$beta" --yes
+    git tag -d "$beta"
+    git push origin ":refs/tags/$beta"
+    git tag "$stable"
+    git push origin "$stable"
+
 # Test release locally (no publish)
 release-dry-run:
     goreleaser release --snapshot --clean
