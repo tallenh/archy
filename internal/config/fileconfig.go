@@ -25,6 +25,7 @@ type tomlConfig struct {
 	SSHD         *bool         `toml:"sshd"`
 	SSHPubKeyFile string       `toml:"ssh_pubkey_file"`
 	Packages     []string      `toml:"packages"`
+	AURPackages  []string      `toml:"aur_packages"`
 	Dotfiles     []tomlDotfile `toml:"dotfiles"`
 }
 
@@ -222,6 +223,9 @@ func applyTomlConfig(cfg *InstallConfig, tc *tomlConfig, disks []BlockDevice, ti
 
 	// Packages
 	cfg.Packages = append(cfg.Packages, tc.Packages...)
+
+	// AUR Packages
+	cfg.AURPackages = append(cfg.AURPackages, tc.AURPackages...)
 
 	// Dotfiles
 	for _, df := range tc.Dotfiles {

@@ -288,11 +288,14 @@ func (inst *Installer) installSoftware() error {
 		return err
 	}
 
+	yayInstalled := false
 	inst.log("Installing yay AUR helper...")
 	yayCmd := fmt.Sprintf("su - %s -c 'git clone https://aur.archlinux.org/yay.git /tmp/yay && cd /tmp/yay && makepkg --noconfirm' && pacman -U --noconfirm /tmp/yay/yay-*.pkg.tar.zst", inst.cfg.Username)
 	if _, err := inst.chrootShell(yayCmd); err != nil {
 		// yay install is non-fatal
 		inst.log("Warning: yay install failed (can be installed manually later)")
+	} else {
+		yayInstalled = true
 	}
 
 	if len(inst.cfg.Packages) > 0 {
@@ -300,6 +303,21 @@ func (inst *Installer) installSoftware() error {
 		args := append([]string{"-S", "--noconfirm"}, inst.cfg.Packages...)
 		if _, err := inst.chrootRun("pacman", args...); err != nil {
 			return err
+		}
+	}
+
+	if len(inst.cfg.AURPackages) > 0 {
+		if !yayInstalled {
+			inst.log("Warning: skipping AUR packages (yay not available): " +
+				strings.Join(inst.cfg.AURPackages, ", "))
+		} else {
+			inst.log("Installing AUR packages...")
+			yayArgs := append([]string{"-S", "--noconfirm"}, inst.cfg.AURPackages...)
+			cmd := fmt.Sprintf("su - %s -c 'yay %s'",
+				inst.cfg.Username, strings.Join(yayArgs, " "))
+			if _, err := inst.chrootShell(cmd); err != nil {
+				return err
+			}
 		}
 	}
 

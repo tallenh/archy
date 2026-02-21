@@ -103,6 +103,7 @@ type InstallConfig struct {
 	SSHPubKey          string // SSH public key content (from file or interactive)
 	Dotfiles           []Dotfile
 	Packages           []string // additional pacman packages to install
+	AURPackages        []string // additional AUR packages to install via yay
 	BundleFS           fs.FS    // zip bundle filesystem, nil when using loose files
 	Mode               string   // "skip", "prompt", or "" (interactive)
 	EncryptSet         bool     // true when encrypt was explicitly set via config
@@ -169,6 +170,9 @@ func (c *InstallConfig) Summary() string {
 	}
 	if len(c.Packages) > 0 {
 		fmt.Fprintf(&b, "Packages:     %s\n", strings.Join(c.Packages, ", "))
+	}
+	if len(c.AURPackages) > 0 {
+		fmt.Fprintf(&b, "AUR Packages: %s\n", strings.Join(c.AURPackages, ", "))
 	}
 	if len(c.Dotfiles) > 0 {
 		fmt.Fprintf(&b, "Dotfiles:     %d file(s)\n", len(c.Dotfiles))
